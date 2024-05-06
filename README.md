@@ -1,6 +1,6 @@
-# Deepfake Detection API
+# Final exam machine learning
 
-This repository contains code for a Deepfake Detection API.
+This repository contains code for a Final exam machine learning.
 
 ## Installation
 
