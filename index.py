@@ -26,7 +26,7 @@ def load_csv_file():
     
     if file_path:
         # Đọc dữ liệu từ tập tin CSV và chỉ chọn các cột quan trọng
-        csv_dt = pd.read_csv(file_path, usecols=["Unit price", "Quantity", "Tax 5%", "Total", "cogs", "Gender", "gross margin percentage", "gross income", "Rating"])
+        csv_dt = pd.read_csv(file_path, usecols=["Unit price", "Quantity", "Tax 5%", "Total", "cogs", "gross margin percentage", "gross income", "Rating"])
         
         # Lấy tên các cột
         csv_columns = csv_dt.columns.tolist()
@@ -155,24 +155,39 @@ def execute_model():
 
         # Plotting
         if len(input_variables) >= 2:
+            # Vẽ biểu đồ 3D
             fig = plt.figure(figsize=(10, 8))
             ax = fig.add_subplot(111, projection='3d')
-
-            ax.scatter(X_test[input_variables[0]], X_test[input_variables[1]], y_test, color='black')
-            ax.scatter(X_test[input_variables[0]], X_test[input_variables[1]], y_pred, color='blue', marker='^')
-
+            ax.scatter(X_test[input_variables[0]], X_test[input_variables[1]], y_test, color='black', label='Actual')
+            ax.scatter(X_test[input_variables[0]], X_test[input_variables[1]], y_pred, color='blue', marker='^', label='Predicted')
             ax.set_xlabel(input_variables[0])
             ax.set_ylabel(input_variables[1])
             ax.set_zlabel(target_variable)
-
             plt.title('Linear Regression Prediction (3D)')
+            plt.legend()
             plt.show()
+
+            # Vẽ biểu đồ phụ thuộc của từng biến độc lập vào biến phụ thuộc
+            for feature in input_variables:
+                model_train_feature = LinearRegression()
+                model_train_feature.fit(X_train[[feature]], y_train)
+                y_pred_feature = model_train_feature.predict(X_test[[feature]])
+                
+                plt.figure(figsize=(8, 6))
+                plt.scatter(X_test[feature], y_test, color='black', label='Actual')
+                plt.plot(X_test[feature], y_pred_feature, color='blue', linewidth=3, label='Predicted')
+                plt.xlabel(feature)
+                plt.ylabel(target_variable)
+                plt.title(f'Linear Regression Prediction: {feature} vs {target_variable}')
+                plt.legend()
+                plt.show()
         else:
-            plt.scatter(X_test[input_variables[0]], y_test, color='black')
-            plt.plot(X_test[input_variables[0]], y_pred, color='blue', linewidth=3)
+            plt.scatter(X_test[input_variables[0]], y_test, color='black', label='Actual')
+            plt.plot(X_test[input_variables[0]], y_pred, color='blue', linewidth=3, label='Predicted')
             plt.xlabel(input_variables[0])
             plt.ylabel(target_variable)
             plt.title('Linear Regression Prediction')
+            plt.legend()
             plt.show()
 
 
