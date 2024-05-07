@@ -20,29 +20,33 @@ csv_columns = []
 def load_csv_file():
     global csv_columns
     global csv_dt
+    
+    # Chọn tập tin CSV từ hộp thoại
     file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
+    
     if file_path:
-        with open(file_path, "r") as file:
-            csv_data = csv.reader(file)
-            csv_dt = pd.read_csv(file_path)
-            csv_columns = next(csv_data)
-            # clean data
-            clean_data()
-            target_combobox["values"] = csv_columns
-            update_input_listbox()
+        # Đọc dữ liệu từ tập tin CSV và chỉ chọn các cột quan trọng
+        csv_dt = pd.read_csv(file_path, usecols=["Unit price", "Quantity", "Tax 5%", "Total", "cogs", "Gender", "gross margin percentage", "gross income", "Rating"])
+        
+        # Lấy tên các cột
+        csv_columns = csv_dt.columns.tolist()
+        
+        # Làm sạch dữ liệu
+        clean_data()
+        
+        # Cập nhật giá trị của combobox và listbox
+        target_combobox["values"] = csv_columns
+        update_input_listbox()
 
 
 def clean_data():
     global csv_dt
-    # Xóa các dòng chứa giá trị NaN
-    prev_shape = csv_dt.shape
-    csv_dt.dropna(inplace=True)
-    # Đặt lại chỉ số của DataFrame
-    csv_dt.reset_index(drop=True, inplace=True)
-    # Tính số dòng bị xóa
-    rows_deleted = prev_shape[0] - csv_dt.shape[0]
-    if rows_deleted > 0:
-        messagebox.showinfo("Clean Data Result", f"{rows_deleted} rows deleted due to NaN values.")
+    
+    # Thay thế các ô chứa NaN bằng giá trị trung vị của cột tương ứng
+    csv_dt.fillna(csv_dt.median(), inplace=True)
+    median = csv_dt.median()
+    # Hiển thị thông báo (nếu muốn)
+    messagebox.showinfo("Clean Data Result", f"NaN values replaced with column medians. \n The median of each column will be: \n {median}")
 
 
 def update_input_listbox():
